@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission to Mars - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0e27;
+            --bg-card: #1a1f3a;
+            --accent-blue: #00d4ff;
+            --accent-orange: #ff6b35;
+            --accent-red: #ff006e;
+            --accent-green: #00ff88;
+            --text-primary: #ffffff;
+            --text-secondary: #a0aec0;
+            --border-color: #2d3748;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #1a0f2e 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated Starfield Background */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 5px;
+            animation: glitch 5s infinite;
+        }
+
+        @keyframes glitch {
+            0%, 90%, 100% { transform: translate(0); }
+            92% { transform: translate(-2px, 2px); }
+            94% { transform: translate(2px, -2px); }
+            96% { transform: translate(-2px, -2px); }
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .system-time {
+            color: var(--accent-blue);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(3, 200px);
+            gap: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .box {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 20px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-orange));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .box:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-blue);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .box:hover::before {
+            opacity: 1;
+        }
+
+        .box h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .box-content {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        /* Grid Layout */
+        .main-dashboard {
+            grid-column: 1 / 3;
+            grid-row: 1 / 3;
+        }
+
+        .rocket-telemetry {
+            grid-column: 3 / 5;
+            grid-row: 1 / 2;
+        }
+
+        .mars-location {
+            grid-column: 3 / 5;
+            grid-row: 2 / 3;
+        }
+
+        .crew-status {
+            grid-column: 1 / 2;
+            grid-row: 3 / 4;
+        }
+
+        .countdown {
+            grid-column: 2 / 3;
+            grid-row: 3 / 4;
+        }
+
+        .weather {
+            grid-column: 3 / 5;
+            grid-row: 3 / 4;
+        }
+
+        /* Status Indicator */
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .status-light {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            box-shadow: 0 0 30px var(--accent-green);
+            animation: pulse 2s infinite;
+        }
+
+        .status-light.warning {
+            background: var(--accent-orange);
+            box-shadow: 0 0 30px var(--accent-orange);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.7;
+                transform: scale(1.1);
+            }
+        }
+
+        .status-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--accent-green);
+        }
+
+        /* Signal Indicator */
+        .signal-indicator {
+            display: flex;
+            gap: 3px;
+            margin-top: 10px;
+        }
+
+        .signal-bar {
+            width: 8px;
+            height: 20px;
+            background: var(--border-color);
+            border-radius: 2px;
+            animation: signal 1.5s infinite;
+        }
+
+        .signal-bar:nth-child(1) { animation-delay: 0s; height: 15px; }
+        .signal-bar:nth-child(2) { animation-delay: 0.2s; height: 20px; }
+        .signal-bar:nth-child(3) { animation-delay: 0.4s; height: 25px; }
+        .signal-bar:nth-child(4) { animation-delay: 0.6s; height: 30px; }
+
+        @keyframes signal {
+            0%, 100% { background: var(--border-color); }
+            50% { background: var(--accent-blue); }
+        }
+
+        /* Data Display */
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-label {
+            color: var(--text-secondary);
+        }
+
+        .data-value {
+            color: var(--accent-orange);
+            font-weight: 600;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-orange));
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+
+        /* Countdown Display */
+        .countdown-display {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            text-align: center;
+            margin-top: 30px;
+            color: var(--accent-orange);
+        }
+
+        /* Map Placeholder with Radar */
+        .map-placeholder {
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(135deg, #1a1f3a 0%, #2d1f3a 100%);
+            border-radius: 10px;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .radar {
+            width: 80px;
+            height: 80px;
+            border: 2px solid var(--accent-blue);
+            border-radius: 50%;
+            position: relative;
+            animation: radar-pulse 3s infinite;
+        }
+
+        .radar::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 50%;
+            height: 2px;
+            background: var(--accent-blue);
+            transform-origin: left center;
+            animation: radar-sweep 3s infinite linear;
+        }
+
+        @keyframes radar-pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes radar-sweep {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Temperature Display */
+        .temp-display {
+            font-size: 3rem;
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+            margin-top: 20px;
+            color: var(--accent-blue);
+        }
+
+        /* Mini Chart */
+        .mini-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 5px;
+            height: 50px;
+            margin-top: 10px;
+        }
+
+        .chart-bar {
+            flex: 1;
+            background: var(--accent-blue);
+            border-radius: 3px 3px 0 0;
+            animation: chart-grow 2s ease-out;
+        }
+
+        @keyframes chart-grow {
+            from { height: 0; }
+        }
+
+        /* Alert Badge */
+        .alert-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: var(--accent-green);
+            color: var(--bg-dark);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 10px;
+            animation: badge-pulse 2s infinite;
+        }
+
+        @keyframes badge-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            main {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: auto;
+            }
+
+            .main-dashboard {
+                grid-column: 1 / 3;
+                grid-row: auto;
+            }
+
+            .rocket-telemetry,
+            .mars-location,
+            .weather {
+                grid-column: 1 / 3;
+                grid-row: auto;
+            }
+
+            .crew-status,
+            .countdown {
+                grid-column: auto;
+                grid-row: auto;
+            }
+        }
+
+        @media (max-width: 600px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+
+            .main-dashboard,
+            .rocket-telemetry,
+            .mars-location,
+            .crew-status,
+            .countdown,
+            .weather {
+                grid-column: 1;
+                grid-row: auto;
+            }
+
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .status-text {
+                font-size: 2rem;
+            }
+
+            .countdown-display {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Stars Background -->
+    <div class="stars" id="stars"></div>
+
+    <header>
+        <h1>🚀 MISSION TO MARS</h1>
+        <p>Aerospace Mission Control Dashboard</p>
+        <div class="system-time" id="systemTime">SYSTEM TIME: Loading...</div>
+    </header>
+
+    <main>
+        <section class="box main-dashboard">
+            <h2>MAIN DASHBOARD <span class="alert-badge">ACTIVE</span></h2>
+            <div class="box-content">
+                <p>Mission Status: All systems operational. Spacecraft en route to Mars orbit insertion.</p>
+                <div class="status-indicator">
+                    <div class="status-light" id="statusLight"></div>
+                    <div class="status-text" id="statusText">GO</div>
+                </div>
+                <p style="margin-top: 20px; color: var(--text-secondary);">
+                    Communication Signal Strength:
+                </p>
+                <div class="signal-indicator">
+                    <div class="signal-bar"></div>
+                    <div class="signal-bar"></div>
+                    <div class="signal-bar"></div>
+                    <div class="signal-bar"></div>
+                </div>
+                <p style="margin-top: 10px; font-size: 0.9rem;">
+                    Next communication window in <span id="commWindow" style="color: var(--accent-orange);">47</span> minutes
+                </p>
+            </div>
+        </section>
+
+        <article class="box rocket-telemetry">
+            <h2>🚀 ROCKET TELEMETRY</h2>
+            <div class="box-content">
+                <div class="data-row">
+                    <span class="data-label">Speed:</span>
+                    <span class="data-value" id="speed">39,600 km/h</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">Altitude:</span>
+                    <span class="data-value" id="altitude">847,320 km</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">Fuel Level:</span>
+                    <span class="data-value" id="fuel">67%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="fuelBar" style="width: 67%"></div>
+                </div>
+            </div>
+        </article>
+
+        <article class="box mars-location">
+            <h2>📡 MARS ROVER LOCATION</h2>
+            <div class="box-content">
+                <p>Current Position: Jezero Crater, Sector 7-G</p>
+                <p style="font-size: 0.85rem; margin-top: 5px;">
+                    Distance traveled: <span style="color: var(--accent-orange);" id="distance">12.4 km</span>
+                </p>
+                <div class="map-placeholder">
+                    <div class="radar"></div>
+                </div>
+            </div>
+        </article>
+
+        <article class="box crew-status">
+            <h2>👨‍🚀 CREW STATUS</h2>
+            <div class="box-content">
+                <p style="font-size: 1.5rem; color: var(--accent-blue); margin-top: 20px;">
+                    4 Astronauts
+                </p>
+                <p style="margin-top: 10px; color: var(--accent-green); font-weight: 600;">
+                    All Nominal
+                </p>
+                <div class="mini-chart">
+                    <div class="chart-bar" style="height: 80%"></div>
+                    <div class="chart-bar" style="height: 95%"></div>
+                    <div class="chart-bar" style="height: 85%"></div>
+                    <div class="chart-bar" style="height: 90%"></div>
+                </div>
+                <p style="margin-top: 10px; font-size: 0.85rem;">
+                    Vitals: Stable | Sleep: Normal
+                </p>
+            </div>
+        </article>
+
+        <article class="box countdown">
+            <h2>⏱️ COUNTDOWN</h2>
+            <div class="box-content">
+                <p>Mars Orbit Insertion:</p>
+                <div class="countdown-display" id="countdown">
+                    00:30:45
+                </div>
+            </div>
+        </article>
+
+        <article class="box weather">
+            <h2>🌡️ MARS WEATHER</h2>
+            <div class="box-content">
+                <div class="temp-display" id="temperature">-63°C</div>
+                <div class="data-row">
+                    <span class="data-label">Pressure:</span>
+                    <span class="data-value">610 Pa</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">Wind Speed:</span>
+                    <span class="data-value" id="windSpeed">12 m/s</span>
+                </div>
+            </div>
+        </article>
+    </main>
+
+    <script>
+        // Generate animated stars
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = Math.random() * 3 + 'px';
+                star.style.height = star.style.width;
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Update system time
+        function updateSystemTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { hour12: false });
+            document.getElementById('systemTime').textContent = `SYSTEM TIME: ${timeString} UTC`;
+        }
+
+        // Countdown timer
+        let countdownSeconds = 30 * 60 + 45; // 30:45
+        function updateCountdown() {
+            const hours = Math.floor(countdownSeconds / 3600);
+            const minutes = Math.floor((countdownSeconds % 3600) / 60);
+            const seconds = countdownSeconds % 60;
+            
+            const display = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            document.getElementById('countdown').textContent = display;
+            
+            if (countdownSeconds > 0) {
+                countdownSeconds--;
+            } else {
+                document.getElementById('statusText').textContent = 'ORBIT!';
+                document.getElementById('statusLight').classList.add('warning');
+            }
+        }
+
+        // Live telemetry updates
+        function updateTelemetry() {
+            const speed = 39600 + Math.floor(Math.random() * 200 - 100);
+            const altitude = 847320 + Math.floor(Math.random() * 1000 - 500);
+            const fuel = 67 - (Math.random() * 0.1);
+            
+            document.getElementById('speed').textContent = speed.toLocaleString() + ' km/h';
+            document.getElementById('altitude').textContent = altitude.toLocaleString() + ' km';
+            document.getElementById('fuel').textContent = fuel.toFixed(1) + '%';
+            document.getElementById('fuelBar').style.width = fuel.toFixed(1) + '%';
+        }
+
+        // Update distance traveled
+        let distanceTraveled = 12.4;
+        function updateDistance() {
+            distanceTraveled += 0.001;
+            document.getElementById('distance').textContent = distanceTraveled.toFixed(2) + ' km';
+        }
+
+        // Update weather
+        function updateWeather() {
+            const temp = -63 + Math.floor(Math.random() * 6 - 3);
+            const wind = 12 + Math.floor(Math.random() * 4 - 2);
+            
+            document.getElementById('temperature').textContent = temp + '°C';
+            document.getElementById('windSpeed').textContent = wind + ' m/s';
+        }
+
+        // Update communication window
+        let commMinutes = 47;
+        function updateCommWindow() {
+            commMinutes--;
+            if (commMinutes < 0) commMinutes = 90;
+            document.getElementById('commWindow').textContent = commMinutes;
+        }
+
+        // Initialize
+        createStars();
+        updateSystemTime();
+        setInterval(updateSystemTime, 1000);
+        setInterval(updateCountdown, 1000);
+        setInterval(updateTelemetry, 2000);
+        setInterval(updateDistance, 3000);
+        setInterval(updateWeather, 5000);
+        setInterval(updateCommWindow, 60000);
+    </script>
+</body>
+</html>
